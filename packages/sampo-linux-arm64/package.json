@@ -1,6 +1,6 @@
 {
   "name": "sampo-linux-arm64",
-  "version": "0.17.4",
+  "version": "0.18.0",
   "description": "Sampo CLI binary for linux-arm64",
   "repository": {
     "type": "git",

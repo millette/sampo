@@ -1,6 +1,6 @@
 {
   "name": "sampo-win32-x64",
-  "version": "0.17.4",
+  "version": "0.18.0",
   "description": "Sampo CLI binary for win32-x64",
   "repository": {
     "type": "git",

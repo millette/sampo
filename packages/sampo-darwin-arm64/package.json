@@ -1,6 +1,6 @@
 {
   "name": "sampo-darwin-arm64",
-  "version": "0.17.4",
+  "version": "0.18.0",
   "description": "Sampo CLI binary for darwin-arm64",
   "repository": {
     "type": "git",
