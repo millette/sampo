@@ -50,7 +50,7 @@ jobs:
 ```
 
 > [!WARNING]
-> If your repository commits a lockfile, install the matching package manager in the workflow before this step. Runners ship `npm` and `yarn`, but not `pnpm` or `bun`.
+> If your repository commits a lockfile, install the matching package manager in the workflow before this step. Runners ship `npm` and `yarn`, but not `pnpm`, `bun`, or `nub`.
 
 > [!NOTE]
 > npm packages can publish without `NPM_TOKEN` through [npm trusted publishing](https://docs.npmjs.com/trusted-publishers). Grant `id-token: write`, add a trusted publisher on npmjs.com for each package, with this workflow's filename and `npm publish` allowed, and use npm 11.5.1 or later (Node 24 ships one). In Bun workspaces, Sampo packs with Bun and publishes with npm. With [`packages.npm_stage`](https://github.com/bruits/sampo/blob/main/crates/sampo/README.md#packages-section), allow `npm stage publish` instead, and approve each version on npmjs.com.
@@ -122,7 +122,7 @@ The action supports the following inputs:
 - `cargo-token`: crates.io API token for Cargo packages; when set, exported as `CARGO_REGISTRY_TOKEN`.
 - `args`: extra flags forwarded to **all** ecosystem publish commands via `sampo publish -- …`.
 - `cargo-args`: extra arguments forwarded only to `cargo publish`.
-- `npm-args`: extra arguments forwarded only to npm/pnpm/yarn/bun publish.
+- `npm-args`: extra arguments forwarded only to npm/pnpm/yarn/bun/nub publish.
 - `hex-args`: extra arguments forwarded only to `mix hex.publish`.
 - `pypi-args`: extra arguments forwarded only to PyPI/twine upload.
 - `packagist-args`: extra arguments forwarded only to Packagist/Composer.
