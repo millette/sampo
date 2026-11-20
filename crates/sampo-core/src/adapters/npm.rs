@@ -894,8 +894,9 @@ fn publish_command_args(
     }
 
     // Off its `publish-branch`, pnpm asks to confirm. Without a terminal, pnpm 12 fails and
-    // older versions exit 0 without publishing. `git.release_branches` already vets the branch.
-    if manager == PackageManager::Pnpm
+    // older versions exit 0 without publishing. nub refuses outright, and a dirty checkout too.
+    // `git.release_branches` already vets the branch.
+    if matches!(manager, PackageManager::Pnpm | PackageManager::Nub)
         && !has_flag(extra_args, "--git-checks")
         && !has_flag(extra_args, "--no-git-checks")
     {

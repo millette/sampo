@@ -1474,6 +1474,22 @@ fn publish_command_args_keep_a_passthrough_git_checks_choice() {
 }
 
 #[test]
+fn publish_command_args_turn_nub_git_checks_off() {
+    let info = manifest_info("@scope/pkg");
+
+    assert_eq!(
+        super::publish_command_args(PackageManager::Nub, None, true, false, &info, &[]),
+        [
+            "publish",
+            "--dry-run",
+            "--access",
+            "public",
+            "--no-git-checks"
+        ]
+    );
+}
+
+#[test]
 fn publish_command_args_leave_bun_without_git_checks() {
     let info = manifest_info("pkg");
 
