@@ -52,3 +52,41 @@ fn a_nub_package_publishes_with_nub_and_git_checks_off() {
         "publish --no-git-checks"
     );
 }
+
+/// nub trades the CI identity for a publish token itself, so it needs no detour through npm.
+#[test]
+fn trusted_publishing_keeps_nub_publish() {
+    let temp = tempfile::tempdir().unwrap();
+    let root = temp.path();
+    let argv_log = root.join("nub-argv.log");
+    let bin = root.join("fake-bin");
+
+    let manifest = root.join("package.json");
+    fs::write(
+        &manifest,
+        r#"{"name":"pkg","version":"1.0.0","packageManager":"nub@0.11.1"}"#,
+    )
+    .unwrap();
+    write_fake_nub(&bin, &argv_log);
+    let _guard = common::use_only(&bin);
+    unsafe {
+        std::env::set_var("NPM_ID_TOKEN", "id-token");
+        for token_var in [
+            "NPM_TOKEN",
+            "NODE_AUTH_TOKEN",
+            "NPM_CONFIG_TOKEN",
+            "npm_config_token",
+        ] {
+            std::env::remove_var(token_var);
+        }
+    }
+
+    PackageAdapter::Npm
+        .publish(&manifest, false, &[])
+        .expect("the stand-in nub succeeds");
+
+    assert_eq!(
+        fs::read_to_string(&argv_log).unwrap().trim(),
+        "publish --no-git-checks"
+    );
+}

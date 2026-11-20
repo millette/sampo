@@ -118,12 +118,17 @@ impl NpmAdapter {
         let dry_run = wants_dry_run(dry_run, extra_args);
 
         let manager = detect_package_manager(manifest_dir, &info);
-        if manager == PackageManager::Bun
-            && (stage || trusted_publishing_available(|key| std::env::var(key).ok()))
-        {
-            return publish_bun_through_npm(
+        let through_npm = match manager {
+            PackageManager::Bun => {
+                stage || trusted_publishing_available(|key| std::env::var(key).ok())
+            }
+            PackageManager::Nub => stage,
+            _ => false,
+        };
+        if through_npm {
+            return publish_packed_through_npm(
+                manager,
                 manifest_path,
-                manifest_dir,
                 &manifest,
                 &info,
                 dry_run,
@@ -718,20 +723,32 @@ fn published_outcome(dry_run: bool, stage: bool) -> PublishOutcome {
     }
 }
 
-/// `bun publish` has neither npm trusted publishing (oven-sh/bun#22423) nor staging, and
-/// `npm publish` would ship `workspace:` and `catalog:` ranges unresolved, so bun packs and npm
-/// uploads the tarball.
-fn publish_bun_through_npm(
+/// `bun publish` has neither npm trusted publishing (oven-sh/bun#22423) nor staging, nub has no
+/// staging, and `npm publish` would ship `workspace:` and `catalog:` ranges unresolved, so the
+/// package manager packs and npm uploads the tarball.
+fn publish_packed_through_npm(
+    manager: PackageManager,
     manifest_path: &Path,
-    manifest_dir: &Path,
     manifest: &JsonValue,
     info: &NpmManifestInfo,
     dry_run: bool,
     stage: bool,
     extra_args: &[String],
 ) -> Result<PublishOutcome> {
+    let manifest_dir = manifest_path.parent().ok_or_else(|| {
+        SampoError::Publish(format!(
+            "Manifest {} does not have a parent directory",
+            manifest_path.display()
+        ))
+    })?;
+    let (program, pack_args, stage_hint): (&str, &[&str], &str) = match manager {
+        PackageManager::Nub => ("nub", &["pack", "--pack-destination"], NUB_STAGE_HINT),
+        _ => ("bun", &["pm", "pack", "--destination"], BUN_STAGE_HINT),
+    };
+    let pack_label = format!("{program} {}", pack_args[..pack_args.len() - 1].join(" "));
+
     if stage {
-        require_version("npm", manifest_dir, NPM_STAGE_FLOOR, BUN_STAGE_HINT)?;
+        require_version("npm", manifest_dir, NPM_STAGE_FLOOR, stage_hint)?;
     } else {
         require_version(
             "npm",
@@ -741,32 +758,32 @@ fn publish_bun_through_npm(
         )?;
     }
 
-    // `bun publish` runs these around the upload, while `bun pm pack` and `npm publish <tarball>`
-    // skip them; `prepublishOnly` often builds what gets packed.
+    // `bun publish` and `nub publish` run these around the upload, while packing and
+    // `npm publish <tarball>` skip them; `prepublishOnly` often builds what gets packed.
     let run_script = |script: &str| -> Result<()> {
         if manifest.pointer(&format!("/scripts/{script}")).is_none() {
             return Ok(());
         }
-        let mut hook = command("bun");
+        let mut hook = command(program);
         hook.args(["run", script]).current_dir(manifest_dir);
-        let attempted = format!("bun run {script}");
-        run_publish_step(hook, "bun", &attempted, manifest_path, &info.name)
+        let attempted = format!("{program} run {script}");
+        run_publish_step(hook, program, &attempted, manifest_path, &info.name)
     };
     run_script("prepublishOnly")?;
 
     let pack_dir = tempfile::tempdir()?;
-    let mut pack = command("bun");
-    pack.args(["pm", "pack", "--destination"])
+    let mut pack = command(program);
+    pack.args(pack_args)
         .arg(pack_dir.path())
         .current_dir(manifest_dir);
-    run_publish_step(pack, "bun", "bun pm pack", manifest_path, &info.name)?;
+    run_publish_step(pack, program, &pack_label, manifest_path, &info.name)?;
 
     let tarball = fs::read_dir(pack_dir.path())?
         .filter_map(|entry| entry.ok().map(|entry| entry.path()))
         .find(|path| path.extension().is_some_and(|ext| ext == "tgz"))
         .ok_or_else(|| {
             SampoError::Publish(format!(
-                "bun pm pack wrote no tarball for package '{}'",
+                "{pack_label} wrote no tarball for package '{}'",
                 info.name
             ))
         })?;
@@ -800,6 +817,8 @@ const NPM_STAGE_HINT: &str =
     "packages.npm_stage needs npm 11.15.0 or later for `npm stage publish`";
 const BUN_STAGE_HINT: &str = "packages.npm_stage stages bun packages through npm, which needs npm \
                               11.15.0 or later, as `bun publish` cannot stage";
+const NUB_STAGE_HINT: &str = "packages.npm_stage stages nub packages through npm, which needs npm \
+                              11.15.0 or later, as nub cannot stage";
 
 /// Older pnpm reads `pnpm stage` as `pnpm run stage`.
 const PNPM_STAGE_FLOOR: (u32, u32, u32) = (11, 3, 0);

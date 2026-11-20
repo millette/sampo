@@ -19,7 +19,8 @@ fn write_stub(dir: &Path, program: &str, version: &str, argv_log: &Path) {
         format!(
             "#!/bin/sh\nprintf '{program} %s\\n' \"$*\" >> '{}'\n\
              if [ \"$1\" = \"--version\" ]; then echo {version}; fi\n\
-             if [ \"$1 $2\" = \"pm pack\" ]; then : > \"$4/pkg.tgz\"; fi\nexit 0\n",
+             if [ \"$1 $2\" = \"pm pack\" ]; then : > \"$4/pkg.tgz\"; fi\n\
+             if [ \"$1\" = \"pack\" ]; then : > \"$3/pkg.tgz\"; fi\nexit 0\n",
             argv_log.display()
         ),
     )
@@ -190,6 +191,27 @@ fn bun_stages_through_npm_even_with_a_token() {
         [
             "npm --version".to_string(),
             format!("bun pm pack --destination {pack_dir}"),
+            format!("npm stage publish {pack_dir}/pkg.tgz --access public --tag beta"),
+        ]
+    );
+}
+
+#[test]
+fn nub_stages_through_npm() {
+    let fixture = Fixture::new("nub@0.11.1")
+        .stub("nub", "v0.11.1")
+        .stub("npm", "11.15.0");
+
+    assert_eq!(fixture.stage(false).unwrap(), PublishOutcome::Staged);
+    let argv = fixture.argv();
+    let pack_dir = argv[1]
+        .strip_prefix("nub pack --pack-destination ")
+        .expect("nub packed the package");
+    assert_eq!(
+        argv,
+        [
+            "npm --version".to_string(),
+            format!("nub pack --pack-destination {pack_dir}"),
             format!("npm stage publish {pack_dir}/pkg.tgz --access public --tag beta"),
         ]
     );
