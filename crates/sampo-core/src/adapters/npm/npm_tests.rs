@@ -773,6 +773,105 @@ fn detect_workspace_package_manager_bun() {
     assert_eq!(result, super::PackageManager::Bun);
 }
 
+fn package_manager_of(manifest_json: &str, lockfile: Option<&str>) -> super::PackageManager {
+    let temp = tempdir().unwrap();
+    let dir = temp.path();
+    let manifest_path = dir.join("package.json");
+    fs::write(&manifest_path, manifest_json).unwrap();
+    if let Some(lockfile) = lockfile {
+        fs::write(dir.join(lockfile), "").unwrap();
+    }
+    let manifest = super::load_package_json(&manifest_path).unwrap();
+    let info = super::parse_manifest_info(&manifest_path, &manifest).unwrap();
+    super::detect_package_manager(dir, &info)
+}
+
+#[test]
+fn detect_package_manager_nub_from_lockfile() {
+    let manager = package_manager_of(r#"{"name":"app","version":"0.1.0"}"#, Some("nub.lock"));
+    assert_eq!(manager, super::PackageManager::Nub);
+}
+
+#[test]
+fn detect_package_manager_nub_from_package_manager_field() {
+    let manager = package_manager_of(
+        r#"{"name":"app","version":"0.1.0","packageManager":"nub@0.11.1"}"#,
+        None,
+    );
+    assert_eq!(manager, super::PackageManager::Nub);
+}
+
+#[test]
+fn detect_package_manager_nub_from_dev_engines_object() {
+    let manager = package_manager_of(
+        r#"{"name":"app","version":"0.1.0","devEngines":{"packageManager":{"name":"nub","version":"^0.11.1","onFail":"error"}}}"#,
+        None,
+    );
+    assert_eq!(manager, super::PackageManager::Nub);
+}
+
+#[test]
+fn detect_package_manager_nub_from_dev_engines_array() {
+    let manager = package_manager_of(
+        r#"{"name":"app","version":"0.1.0","devEngines":{"packageManager":[{"name":"nub"},{"name":"pnpm"}]}}"#,
+        None,
+    );
+    assert_eq!(manager, super::PackageManager::Nub);
+}
+
+#[test]
+fn detect_package_manager_field_wins_over_dev_engines() {
+    let manager = package_manager_of(
+        r#"{"name":"app","version":"0.1.0","packageManager":"pnpm@10.0.0","devEngines":{"packageManager":{"name":"nub"}}}"#,
+        None,
+    );
+    assert_eq!(manager, super::PackageManager::Pnpm);
+}
+
+#[test]
+fn detect_workspace_package_manager_nub() {
+    let temp = tempdir().unwrap();
+    let root = temp.path();
+    fs::write(
+        root.join("package.json"),
+        r#"{"name":"app","private":true}"#,
+    )
+    .unwrap();
+    fs::write(root.join("nub.lock"), "").unwrap();
+
+    let result = super::detect_workspace_package_manager(root).unwrap();
+    assert_eq!(result, super::PackageManager::Nub);
+}
+
+#[test]
+fn detect_workspace_package_manager_nub_from_dev_engines() {
+    let temp = tempdir().unwrap();
+    let root = temp.path();
+    fs::write(
+        root.join("package.json"),
+        r#"{"name":"app","private":true,"devEngines":{"packageManager":{"name":"nub"}}}"#,
+    )
+    .unwrap();
+
+    let result = super::detect_workspace_package_manager(root).unwrap();
+    assert_eq!(result, super::PackageManager::Nub);
+}
+
+#[test]
+fn nub_lockfile_regen_command() {
+    let temp = tempdir().unwrap();
+    let (program, args, lockfile) =
+        super::lockfile_regen_command(super::PackageManager::Nub, temp.path());
+    assert_eq!(
+        (program, args, lockfile),
+        (
+            "nub",
+            vec!["install", "--lockfile-only", "--fix-lockfile"],
+            "nub.lock"
+        )
+    );
+}
+
 #[test]
 fn lockfile_regen_command_per_package_manager() {
     let temp = tempdir().unwrap();

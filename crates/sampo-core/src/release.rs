@@ -1668,6 +1668,7 @@ fn ecosystems_with_lockfiles(
             PackageKind::Cargo => workspace.root.join("Cargo.lock").exists(),
             PackageKind::Npm => {
                 workspace.root.join("package-lock.json").exists()
+                    || workspace.root.join("nub.lock").exists()
                     || workspace.root.join("pnpm-lock.yaml").exists()
                     || workspace.root.join("yarn.lock").exists()
                     || workspace.root.join("bun.lockb").exists()

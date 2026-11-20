@@ -44,6 +44,7 @@ enum PackageManager {
     Pnpm,
     Yarn,
     Bun,
+    Nub,
 }
 
 pub(super) struct NpmAdapter;
@@ -136,6 +137,7 @@ impl NpmAdapter {
             PackageManager::Pnpm => "pnpm",
             PackageManager::Yarn => "yarn",
             PackageManager::Bun => "bun",
+            PackageManager::Nub => "nub",
         };
 
         let yarn = match manager {
@@ -1071,12 +1073,7 @@ fn parse_manifest_info(manifest_path: &Path, manifest: &JsonValue) -> Result<Npm
         )));
     }
 
-    let package_manager = manifest
-        .get("packageManager")
-        .and_then(JsonValue::as_str)
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-        .map(|s| s.to_string());
+    let package_manager = declared_package_manager(manifest);
 
     let publish_config = manifest
         .get("publishConfig")
@@ -1383,6 +1380,27 @@ fn encode_package_name(name: &str) -> String {
     encoded
 }
 
+/// The `packageManager` field, else the first `devEngines.packageManager` entry, which an
+/// array lists in order of preference. nub declares itself only in the latter.
+fn declared_package_manager(manifest: &JsonValue) -> Option<String> {
+    let non_empty = |value: &JsonValue| {
+        value
+            .as_str()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+    };
+    if let Some(field) = manifest.get("packageManager").and_then(non_empty) {
+        return Some(field);
+    }
+    let dev_engines = manifest.pointer("/devEngines/packageManager")?;
+    let first = match dev_engines {
+        JsonValue::Array(entries) => entries.first()?,
+        entry => entry,
+    };
+    first.get("name").and_then(non_empty)
+}
+
 fn detect_package_manager(dir: &Path, info: &NpmManifestInfo) -> PackageManager {
     if let Some(field) = info.package_manager.as_deref()
         && let Some(manager) = parse_package_manager_field(field)
@@ -1391,6 +1409,9 @@ fn detect_package_manager(dir: &Path, info: &NpmManifestInfo) -> PackageManager 
     }
 
     for ancestor in dir.ancestors() {
+        if ancestor.join("nub.lock").exists() {
+            return PackageManager::Nub;
+        }
         if ancestor.join("pnpm-lock.yaml").exists() {
             return PackageManager::Pnpm;
         }
@@ -1421,6 +1442,7 @@ fn parse_package_manager_field(field: &str) -> Option<PackageManager> {
         "npm" => Some(PackageManager::Npm),
         "yarn" => Some(PackageManager::Yarn),
         "bun" => Some(PackageManager::Bun),
+        "nub" => Some(PackageManager::Nub),
         _ => None,
     }
 }
@@ -1457,6 +1479,13 @@ fn lockfile_regen_command(
             } else {
                 "bun.lock"
             },
+        ),
+        // `--fix-lockfile` keeps the pinned versions and re-resolves only what drifted, such as
+        // the specifiers of workspace dependencies a release just bumped.
+        PackageManager::Nub => (
+            "nub",
+            vec!["install", "--lockfile-only", "--fix-lockfile"],
+            "nub.lock",
         ),
     }
 }
@@ -1653,6 +1682,9 @@ fn regenerate_npm_lockfile(workspace_root: &Path) -> Result<()> {
 /// Returns an error if no package manager can be detected (no lockfile or package.json).
 fn detect_workspace_package_manager(workspace_root: &Path) -> Result<PackageManager> {
     // First, check for lockfiles (most reliable indicator)
+    if workspace_root.join("nub.lock").exists() {
+        return Ok(PackageManager::Nub);
+    }
     if workspace_root.join("pnpm-lock.yaml").exists() {
         return Ok(PackageManager::Pnpm);
     }
@@ -1668,13 +1700,12 @@ fn detect_workspace_package_manager(workspace_root: &Path) -> Result<PackageMana
         return Ok(PackageManager::Npm);
     }
 
-    // No lockfile found, try reading packageManager field from root package.json
+    // No lockfile found, try the package manager the root package.json declares
     let package_json_path = workspace_root.join("package.json");
     if package_json_path.exists() {
         let manifest = load_package_json(&package_json_path)?;
-        if let Some(package_manager_field) = manifest
-            .get("packageManager")
-            .and_then(|v| v.as_str())
+        if let Some(package_manager_field) = declared_package_manager(&manifest)
+            .as_deref()
             .and_then(parse_package_manager_field)
         {
             return Ok(package_manager_field);
@@ -1683,7 +1714,7 @@ fn detect_workspace_package_manager(workspace_root: &Path) -> Result<PackageMana
 
     // If we can't detect a package manager, it's an error since we're in an npm workspace
     Err(SampoError::Release(
-        "cannot detect package manager for npm workspace; no lockfile found and no packageManager field in package.json".to_string()
+        "cannot detect package manager for npm workspace; no lockfile found and no packageManager or devEngines.packageManager field in package.json".to_string()
     ))
 }
 
