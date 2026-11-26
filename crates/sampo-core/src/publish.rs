@@ -262,9 +262,10 @@ pub fn run_publish(
         }
     }
 
-    if publish_targets.is_empty() && untagged_releases.is_empty() {
-        println!("All packages are already published. Nothing to do.");
-        // Still need to handle private package tagging below
+    // Private packages may still need a tag, so "Nothing to do." waits until the tags are known.
+    let all_published = publish_targets.is_empty() && untagged_releases.is_empty();
+    if all_published {
+        println!("All packages are already published.");
     } else if !publish_targets.is_empty() {
         println!("Publish plan:");
         for (package, _, _) in &publish_targets {
@@ -452,6 +453,10 @@ pub fn run_publish(
                 tags_to_create.push(tag);
             }
         }
+    }
+
+    if all_published && tags_to_create.is_empty() {
+        println!("Nothing to do.");
     }
 
     if dry_run {

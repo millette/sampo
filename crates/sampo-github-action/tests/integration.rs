@@ -450,6 +450,45 @@ fn test_publish_dry_run_lists_the_tags_it_would_create() {
     );
 }
 
+fn publish_dry_run_stdout(ws: &TestWorkspace) -> String {
+    let mut env_vars = FxHashMap::default();
+    env_vars.insert(
+        "GITHUB_WORKSPACE".to_string(),
+        ws.path().to_string_lossy().to_string(),
+    );
+    env_vars.insert("INPUT_COMMAND".to_string(), "publish".to_string());
+    env_vars.insert("INPUT_DRY_RUN".to_string(), "true".to_string());
+    env_vars.insert("SAMPO_RELEASE_BRANCH".to_string(), "main".to_string());
+
+    let output = run_action(&[], &env_vars, ws.path());
+    String::from_utf8_lossy(&output.stdout).into_owned()
+}
+
+#[test]
+fn test_publish_dry_run_with_a_tag_to_create_does_not_say_nothing_to_do() {
+    let ws = TestWorkspace::new();
+    setup_publish_workspace(&ws);
+
+    let stdout = publish_dry_run_stdout(&ws);
+    assert!(
+        !stdout.contains("Nothing to do."),
+        "a tag is still to be created, got:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_publish_dry_run_with_everything_tagged_says_nothing_to_do() {
+    let ws = TestWorkspace::new();
+    setup_publish_workspace(&ws);
+    git(ws.path(), &["tag", "-a", "foo-v0.1.0", "-m", "foo-v0.1.0"]);
+
+    let stdout = publish_dry_run_stdout(&ws);
+    assert!(
+        stdout.contains("Nothing to do.\n"),
+        "nothing is left to publish or tag, got:\n{stdout}"
+    );
+}
+
 #[test]
 fn test_publish_private_packages_creates_tags_and_reports_published() {
     let ws = TestWorkspace::new();
