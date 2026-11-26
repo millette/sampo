@@ -1,6 +1,6 @@
 {
   "name": "@waglo-private/sampo",
-  "version": "0.26.1",
+  "version": "0.26.2",
   "description": "Sampo CLI: automate changelogs, versioning, and publishing",
   "homepage": "https://github.com/millette/sampo",
   "repository": {
@@ -18,11 +18,11 @@
     "node": ">=26.10.0"
   },
   "optionalDependencies": {
-    "@waglo-private/sampo-linux-x64": "0.26.1",
-    "@waglo-private/sampo-linux-arm64": "0.26.1",
-    "@waglo-private/sampo-darwin-x64": "0.26.1",
-    "@waglo-private/sampo-darwin-arm64": "0.26.1",
-    "@waglo-private/sampo-win32-x64": "0.26.1"
+    "@waglo-private/sampo-linux-x64": "0.26.2",
+    "@waglo-private/sampo-linux-arm64": "0.26.2",
+    "@waglo-private/sampo-darwin-x64": "0.26.2",
+    "@waglo-private/sampo-darwin-arm64": "0.26.2",
+    "@waglo-private/sampo-win32-x64": "0.26.2"
   },
   "publishConfig": {
     "registry": "http://verdaccio.localhost:4873/"

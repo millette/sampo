@@ -1,6 +1,6 @@
 # @bruits/sampo-darwin-x64
 
-## 0.23.0 ... 0.26.1 — 2026-11-26
+## 0.23.0 ... 0.26.2 — 2026-11-26
 
 Version bump only, to follow other packages.
 

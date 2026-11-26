@@ -1,6 +1,6 @@
 # sampo-github-bot
 
-## 0.4.15 ... 0.4.18 — 2026-11-26
+## 0.4.15 ... 0.4.19 — 2026-11-26
 
 Version bump only, to follow other packages.
 

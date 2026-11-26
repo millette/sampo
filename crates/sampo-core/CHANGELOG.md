@@ -1,5 +1,11 @@
 # sampo-core
 
+## 0.21.2 — 2026-11-26
+
+### Patch changes
+
+- [d8b9345](https://github.com/millette/sampo/commit/d8b934595937c57ca082be28a56d0cd12fd24f6e) Fixed `sampo publish` saying "Nothing to do." when a package was already published but still had a git tag to create. — Thanks Robin Millette!
+
 ## 0.21.1 — 2026-11-26
 
 ### Patch changes
