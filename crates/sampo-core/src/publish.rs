@@ -578,6 +578,18 @@ fn tag_conflict_hint(config: &Config, group: &[&PackageInfo]) -> String {
     }
 }
 
+/// Whether `path` is inside a git working tree: the repository may be a parent folder (a
+/// workspace in a subfolder) or `.git` a file (a worktree, a submodule), so ask git rather
+/// than look for a `.git` beside the workspace.
+fn in_git_repository(path: &Path) -> bool {
+    Command::new("git")
+        .arg("-C")
+        .arg(path)
+        .args(["rev-parse", "--is-inside-work-tree"])
+        .output()
+        .is_ok_and(|out| out.status.success() && out.stdout.trim_ascii() == b"true")
+}
+
 pub(crate) fn package_tag_exists(
     repo_root: &Path,
     config: &Config,
@@ -585,7 +597,7 @@ pub(crate) fn package_tag_exists(
     crate_name: &str,
     version: &str,
 ) -> Result<bool> {
-    if !repo_root.join(".git").exists() {
+    if !in_git_repository(repo_root) {
         return Ok(false);
     }
 
@@ -617,7 +629,7 @@ fn released_at_head(
     package: &PackageInfo,
     tags: &mut Option<Vec<String>>,
 ) -> Result<bool> {
-    if !repo_root.join(".git").exists() {
+    if !in_git_repository(repo_root) {
         return Ok(false);
     }
     let tags = match tags {
@@ -678,7 +690,7 @@ pub fn tag_published_crate(
     crate_name: &str,
     version: &str,
 ) -> Result<bool> {
-    if !repo_root.join(".git").exists() {
+    if !in_git_repository(repo_root) {
         // Not a git repo, skip
         return Ok(false);
     }
@@ -2125,6 +2137,35 @@ edition = "2021"
             tag_lines.contains(&"private-two-v1.0.0"),
             "Missing tag for private-two"
         );
+    }
+
+    #[test]
+    fn private_package_tagged_when_the_repository_is_a_parent_folder() {
+        // The workspace is a subfolder of the git repository (a `ts/` folder in a repository
+        // of scripts): there is no `.git` beside `.sampo/`, but git still works there.
+        let mut workspace = TestWorkspace::new();
+        workspace
+            .add_crate("private-one", "1.0.0")
+            .set_publishable("private-one", false);
+        let outer = tempfile::tempdir().unwrap();
+        let inner = outer.path().join("ts");
+        fs::rename(&workspace.root, &inner).unwrap();
+        workspace.root = inner;
+        init_git_repo_for_test(outer.path());
+
+        let _fake_cargo = FakeCargo::install(false, false, "1.91.0");
+        workspace
+            .run_publish(false)
+            .expect("publish should succeed");
+
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(outer.path())
+            .args(["tag", "--list"])
+            .output()
+            .expect("git tag list should succeed");
+        let tags = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(tags.lines().collect::<Vec<_>>(), vec!["private-one-v1.0.0"]);
     }
 
     #[test]
