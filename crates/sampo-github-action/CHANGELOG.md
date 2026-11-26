@@ -1,5 +1,15 @@
 # sampo-github-action
 
+## 0.23.0 — 2026-11-26
+
+### Minor changes
+
+- [00f86f1](https://github.com/millette/sampo/commit/00f86f1f61865438695ba7f5a21e7fb30b836ad1) In JavaScript/TypeScript (npm) projects, added support for the nub package manager, detected from `nub.lock`, `packageManager`, or `devEngines.packageManager`. `sampo release` refreshes `nub.lock`, `sampo publish` publishes with `nub publish`, and `packages.npm_stage` stages nub packages through npm. — Thanks @millette!
+
+### Patch changes
+
+- [8fb4992](https://github.com/millette/sampo/commit/8fb499235c74374ccafd579b0ec22d807381b56e) Fixed `sampo publish` creating no tags, and saying nothing, when the workspace is a subfolder of its git repository or `.git` is a file (a worktree or a submodule). — Thanks @millette!
+
 ## 0.22.1 — 2026-11-11
 
 ### Patch changes
