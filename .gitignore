@@ -7,3 +7,6 @@ data
 codeql-db/
 *.sarif
 .DS_Store
+
+# Local pull request draft
+/PR.md
