@@ -429,6 +429,28 @@ fn test_publish_dry_run_with_private_packages() {
 }
 
 #[test]
+fn test_publish_dry_run_lists_the_tags_it_would_create() {
+    let ws = TestWorkspace::new();
+    setup_publish_workspace(&ws);
+
+    let mut env_vars = FxHashMap::default();
+    env_vars.insert(
+        "GITHUB_WORKSPACE".to_string(),
+        ws.path().to_string_lossy().to_string(),
+    );
+    env_vars.insert("INPUT_COMMAND".to_string(), "publish".to_string());
+    env_vars.insert("INPUT_DRY_RUN".to_string(), "true".to_string());
+    env_vars.insert("SAMPO_RELEASE_BRANCH".to_string(), "main".to_string());
+
+    let output = run_action(&[], &env_vars, ws.path());
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("Would tag: foo-v0.1.0\n"),
+        "dry-run should list the tag of the private package, got:\n{stdout}"
+    );
+}
+
+#[test]
 fn test_publish_private_packages_creates_tags_and_reports_published() {
     let ws = TestWorkspace::new();
     setup_publish_workspace(&ws);

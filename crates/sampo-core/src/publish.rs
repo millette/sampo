@@ -455,6 +455,9 @@ pub fn run_publish(
     }
 
     if dry_run {
+        for tag in &tags_to_create {
+            println!("Would tag: {tag}");
+        }
         println!("Dry-run complete.");
         if !not_simulated.is_empty() {
             println!("{} could not be validated.", not_simulated.join(", "));
