@@ -1,6 +1,6 @@
 {
   "name": "@waglo-private/sampo-darwin-arm64",
-  "version": "0.26.0",
+  "version": "0.26.1",
   "description": "Sampo CLI binary for darwin-arm64",
   "repository": {
     "type": "git",

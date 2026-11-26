@@ -1,6 +1,6 @@
 {
   "name": "@waglo-private/sampo-linux-arm64",
-  "version": "0.26.0",
+  "version": "0.26.1",
   "description": "Sampo CLI binary for linux-arm64",
   "repository": {
     "type": "git",

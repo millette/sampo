@@ -1,5 +1,11 @@
 # sampo-core
 
+## 0.21.1 — 2026-11-26
+
+### Patch changes
+
+- [ca59a57](https://github.com/millette/sampo/commit/ca59a570554050cd2d222183bdcd99554f9b96c8) Improved `sampo publish --dry-run` to list each git tag it would create, as `Would tag: <tag>`. — Thanks Robin Millette!
+
 ## 0.21.0 — 2026-11-26
 
 ### Minor changes
