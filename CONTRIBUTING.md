@@ -37,7 +37,7 @@ Changesets wait in `.sampo/changesets/`. On `main`, the Release & Publish workfl
 
 ## Getting Started
 
-Sampo is a Rust monorepo using [Cargo workspaces](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html), with a [pnpm workspace](https://pnpm.io/workspaces) for the npm packages of the CLI. It needs the stable [Rust](https://www.rust-lang.org/) toolchain, which `rust-toolchain.toml` selects. [Node.js](https://nodejs.org/) LTS, and [pnpm](https://pnpm.io/) at the version `package.json` pins, are needed only for `packages/` and `pnpm run check`. The commands are in [AGENTS.md](./AGENTS.md), and each package's README ends with what to know before working on it.
+Sampo is a Rust monorepo using [Cargo workspaces](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html), with an npm workspace managed by [nub](https://nubjs.com/) for the npm packages of the CLI. It needs the stable [Rust](https://www.rust-lang.org/) toolchain, which `rust-toolchain.toml` selects. [Node.js](https://nodejs.org/) 26.10.0 or later and [nub](https://nubjs.com/) 0.11.2 or later, as `package.json` requires, are needed only for `packages/` and `nub run check`. The commands are in [AGENTS.md](./AGENTS.md), and each package's README ends with what to know before working on it.
 
 | Path | What it holds |
 | --- | --- |

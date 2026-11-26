@@ -1,0 +1,37 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .: {}
+
+  packages/sampo:
+    optionalDependencies:
+      '@waglo-private/sampo-darwin-arm64':
+        specifier: 0.24.1
+        version: link:../sampo-darwin-arm64
+      '@waglo-private/sampo-darwin-x64':
+        specifier: 0.24.1
+        version: link:../sampo-darwin-x64
+      '@waglo-private/sampo-linux-arm64':
+        specifier: 0.24.1
+        version: link:../sampo-linux-arm64
+      '@waglo-private/sampo-linux-x64':
+        specifier: 0.24.1
+        version: link:../sampo-linux-x64
+      '@waglo-private/sampo-win32-x64':
+        specifier: 0.24.1
+        version: link:../sampo-win32-x64
+
+  packages/sampo-darwin-arm64: {}
+
+  packages/sampo-darwin-x64: {}
+
+  packages/sampo-linux-arm64: {}
+
+  packages/sampo-linux-x64: {}
+
+  packages/sampo-win32-x64: {}

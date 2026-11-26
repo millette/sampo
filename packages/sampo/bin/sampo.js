@@ -6,11 +6,11 @@ const path = require("node:path");
 const process = require("node:process");
 
 const PLATFORM_PACKAGES = {
-  "linux x64": "@bruits/sampo-linux-x64",
-  "linux arm64": "@bruits/sampo-linux-arm64",
-  "darwin x64": "@bruits/sampo-darwin-x64",
-  "darwin arm64": "@bruits/sampo-darwin-arm64",
-  "win32 x64": "@bruits/sampo-win32-x64",
+  "linux x64": "@waglo-private/sampo-linux-x64",
+  "linux arm64": "@waglo-private/sampo-linux-arm64",
+  "darwin x64": "@waglo-private/sampo-darwin-x64",
+  "darwin arm64": "@waglo-private/sampo-darwin-arm64",
+  "win32 x64": "@waglo-private/sampo-win32-x64",
 };
 
 const key = `${process.platform} ${process.arch}`;

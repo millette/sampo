@@ -1,10 +1,10 @@
 {
-  "name": "@bruits/sampo-linux-arm64",
+  "name": "@waglo-private/sampo-linux-arm64",
   "version": "0.24.1",
   "description": "Sampo CLI binary for linux-arm64",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bruits/sampo.git"
+    "url": "git+https://github.com/millette/sampo.git"
   },
   "license": "MIT",
   "bin": {
@@ -23,6 +23,6 @@
     "arm64"
   ],
   "publishConfig": {
-    "access": "public"
+    "registry": "http://verdaccio.localhost:4873/"
   }
 }

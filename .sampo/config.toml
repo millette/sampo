@@ -10,10 +10,10 @@ automatic_entries = "collapse"
 [packages]
 fixed = [[
   "cargo/sampo",
-  "npm/sampo",
-  "npm/@bruits/sampo-linux-x64",
-  "npm/@bruits/sampo-linux-arm64",
-  "npm/@bruits/sampo-darwin-x64",
-  "npm/@bruits/sampo-darwin-arm64",
-  "npm/@bruits/sampo-win32-x64",
+  "npm/@waglo-private/sampo",
+  "npm/@waglo-private/sampo-linux-x64",
+  "npm/@waglo-private/sampo-linux-arm64",
+  "npm/@waglo-private/sampo-darwin-x64",
+  "npm/@waglo-private/sampo-darwin-arm64",
+  "npm/@waglo-private/sampo-win32-x64",
 ]]

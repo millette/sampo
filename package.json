@@ -1,7 +1,24 @@
 {
   "name": "sampo-monorepo",
   "private": true,
-  "packageManager": "pnpm@11.1.2",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=26.10.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "nub",
+      "version": ">=0.11.2",
+      "onFail": "error"
+    },
+    "runtime": {
+      "name": "node",
+      "version": ">=26.10.0",
+      "onFail": "error"
+    }
+  },
   "scripts": {
     "check": "cargo clippy --all-targets --all-features -- -D warnings && cargo clippy --all-targets --no-default-features -- -D warnings && cargo build && cargo test"
   }

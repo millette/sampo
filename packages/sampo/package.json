@@ -1,11 +1,11 @@
 {
-  "name": "sampo",
+  "name": "@waglo-private/sampo",
   "version": "0.24.1",
   "description": "Sampo CLI: automate changelogs, versioning, and publishing",
-  "homepage": "https://github.com/bruits/sampo",
+  "homepage": "https://github.com/millette/sampo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bruits/sampo.git"
+    "url": "https://github.com/millette/sampo.git"
   },
   "license": "MIT",
   "bin": {
@@ -15,16 +15,16 @@
     "bin/sampo.js"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=26.10.0"
   },
   "optionalDependencies": {
-    "@bruits/sampo-linux-x64": "0.24.1",
-    "@bruits/sampo-linux-arm64": "0.24.1",
-    "@bruits/sampo-darwin-x64": "0.24.1",
-    "@bruits/sampo-darwin-arm64": "0.24.1",
-    "@bruits/sampo-win32-x64": "0.24.1"
+    "@waglo-private/sampo-linux-x64": "0.24.1",
+    "@waglo-private/sampo-linux-arm64": "0.24.1",
+    "@waglo-private/sampo-darwin-x64": "0.24.1",
+    "@waglo-private/sampo-darwin-arm64": "0.24.1",
+    "@waglo-private/sampo-win32-x64": "0.24.1"
   },
   "publishConfig": {
-    "access": "public"
+    "registry": "http://verdaccio.localhost:4873/"
   }
 }

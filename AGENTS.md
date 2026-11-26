@@ -11,7 +11,7 @@ cargo clippy --all-targets --no-default-features -- -D warnings # lint without d
 cargo test                                                       # test, as CI does
 cargo test -p sampo-core                                         # only one crate's tests
 cargo run -p sampo -- <command>                                  # run the CLI from the repository
-pnpm run check                                                   # everything CI checks, in CI order
+nub run check                                                    # everything CI checks, in CI order
 ```
 
 ## Useful Resources
