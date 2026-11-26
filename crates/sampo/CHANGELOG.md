@@ -1,5 +1,11 @@
 # sampo
 
+## 0.26.0 — 2026-11-26
+
+### Minor changes
+
+- Version bump only, with no functional changes.
+
 ## 0.25.0 — 2026-11-26
 
 ### Minor changes

@@ -1,6 +1,6 @@
 {
   "name": "@waglo-private/sampo-win32-x64",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "description": "Sampo CLI binary for win32-x64",
   "repository": {
     "type": "git",
