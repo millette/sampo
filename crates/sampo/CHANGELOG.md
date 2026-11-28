@@ -1,5 +1,9 @@
 # sampo
 
+## 0.26.3 — 2026-11-28
+
+Version bump only, to follow other packages.
+
 ## 0.26.2 — 2026-11-26
 
 ### Patch changes
