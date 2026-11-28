@@ -4,7 +4,7 @@
   "description": "Sampo CLI binary for win32-x64",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/millette/sampo.git"
+    "url": "git+https://github.com/waglo-private/sampo.git"
   },
   "license": "MIT",
   "bin": {
